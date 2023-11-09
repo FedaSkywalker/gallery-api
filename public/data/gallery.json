@@ -1,0 +1,49 @@
+[
+  {
+    "name": "VW Cars",
+    "path": "VW%20Cars",
+    "images": [
+      {
+        "path": "california.png",
+        "fullPath": "VW%20Cars/california.png",
+        "name": "california",
+        "modified": "Thu Nov 09 2023 19:20:16 GMT+0100 (Central European Standard Time)"
+      },
+      {
+        "path": "tiguan.jpg",
+        "fullPath": "VW%20Cars/tiguan.jpg",
+        "name": "tiguan",
+        "modified": "Thu Nov 09 2023 19:20:16 GMT+0100 (Central European Standard Time)"
+      },
+      {
+        "path": "roxy2.png",
+        "fullPath": "VW%20Cars/roxy2.png",
+        "name": "roxy2",
+        "modified": "Thu Nov 09 2023 19:56:13 GMT+0100 (Central European Standard Time)"
+      }
+    ]
+  },
+  {
+    "name": "Animals",
+    "path": "Animals",
+    "images": [
+      {
+        "path": "dog2.jpg",
+        "fullPath": "Animals/dog2.jpg",
+        "name": "dog2",
+        "modified": "Thu Nov 09 2023 19:21:34 GMT+0100 (Central European Standard Time)"
+      },
+      {
+        "path": "dog3.jpg",
+        "fullPath": "Animals/dog3.jpg",
+        "name": "dog3",
+        "modified": "Thu Nov 09 2023 19:22:06 GMT+0100 (Central European Standard Time)"
+      }
+    ]
+  },
+  {
+    "name": "Dogs",
+    "path": "Dogs",
+    "images": []
+  }
+]

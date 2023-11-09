@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+</head>
+<body>
+<div class="header">
+<div class="container">
+  <img class="avatar" src="{{user.avatarUrl}}" alt="avatar_image">
+  <div class="welcome">Welcome <strong>{{user.name}}</strong> to session based auth page</div>
+</div>
+</div>
+</body>
+</html>
+
+<style>
+  .home {
+  color: red;
+  }
+  .avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+  }
+  .container {
+    display: flex;
+    align-items: center;
+    width: 50%;
+    margin: 0 auto;
+    background-color: lightgrey;
+    padding: 10px;
+    border-radius: 3px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+   }
+   .welcome {
+      margin-left: 10px;
+      color: grey;
+      font-size: 24px;
+   }
+</style>
+
