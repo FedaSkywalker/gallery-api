@@ -1,9 +1,8 @@
-
 import * as console from "console";
 import {HttpContextContract} from "@ioc:Adonis/Core/HttpContext";
-import {UserService} from "../../Services/UserService";
-import {User} from "../../../../../zadanie/gallery-api/providers/CustomAuthProvider";
+import {UserService} from "App/Services/UserService";
 import View from '@ioc:Adonis/Core/View'
+import {User} from "../../../providers/CustomAuthProvider";
 
 export default class AuthController {
 

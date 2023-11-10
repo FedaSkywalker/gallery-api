@@ -1,36 +1,35 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import Application from "@ioc:Adonis/Core/Application";
 import * as console from "console";
 import * as fs from "fs";
-import {GalleryService} from "../../Services/GalleryService";
-import {Image} from "../../Models/Image";
+import {ImageService} from "App/Services/ImageService";
+import {Image} from "App/Models/Image";
+import {PATHS} from "App/Helpers/Constants";
+
 
 //File processing
 export default class FileController {
 
-  private readonly galleryService: GalleryService
-
+  private readonly imageService: ImageService
 
   constructor() {
-    this.galleryService = new GalleryService()
-
+    this.imageService = new ImageService()
   }
 
   public async uploadFile({ request, response, params }: HttpContextContract) {
     //get path from URL
     const { path } = params
     //generate storage path on disk
-    const storagePath = Application.publicPath(`storage/${decodeURIComponent(path)}`)
+    const storagePath = PATHS.public.storage(decodeURIComponent(path))
 
     if (!fs.existsSync(storagePath)) {
-      return response.status(404).send('Gallery not found')
+      return response.status(404).json({ error: 'Gallery not found' })
     }
 
     //load multipart files
     const files = request.files('image')
 
     if (!files || files.length === 0) {
-      return response.status(400).send('Invalid request - file not found.' )
+      return response.status(400).json({ error: 'Invalid request - file not found.' } )
     }
 
     let responseBody: Image[] = []
@@ -41,7 +40,6 @@ export default class FileController {
         //save image on disk
         await file.move(storagePath)
         //prepare metadata
-        const galleryImages = this.galleryService.getByKey('path', path)[0].images
         const fileName = file.clientName
         const image: Image = {
           path: fileName,
@@ -50,11 +48,11 @@ export default class FileController {
           modified: Date()
         }
         //save metadata using gallery service
-        this.galleryService.updateAllWhereKey('path', path, 'images', galleryImages.concat([image]))
+        this.imageService.appendItems([image])
         responseBody.push(image)
 
       } catch (e) {
-        response.status(500).send('Unknown error');
+        response.status(500).json({ error: 'Unknown error' });
       }
     }
     return  response.status(201).json({ uploaded: responseBody })
@@ -67,39 +65,36 @@ export default class FileController {
     const { galleryName, imageName } = params
 
     //generate paths
-    const galleryPath = galleryName ? Application.publicPath(`storage/${decodeURIComponent(galleryName)}`) : null
-    const imagePath = imageName ? Application.publicPath(`storage/${decodeURIComponent(galleryName)}/${decodeURIComponent(imageName)}`) : null
+    const galleryPath = galleryName ? PATHS.public.storage(decodeURIComponent(galleryName)) : null
+    const imagePath = imageName ? PATHS.public.storage(`${decodeURIComponent(galleryName)}/${decodeURIComponent(imageName)}`) : null
 
     //checking existence
     if (galleryPath && !fs.existsSync(galleryPath)) {
-      return response.status(404).send('Gallery does not exist!' )
+      return response.status(404).json({ error: 'Gallery does not exist!' })
     }
 
     if(imagePath && !fs.existsSync(imagePath)) {
-        return response.status(404).send('Photo does not exist!')
+        return response.status(404).json({ error: 'Photo does not exist!'})
     }
 
     try {
       //deleting certain image
       if (imagePath) {
         await fs.unlinkSync(imagePath)
-        const allImages = this.galleryService.getAllData()
-          .filter((gallery) => gallery.path === galleryName)
-          .flatMap((gallery) => gallery.images)
+        const allImages = this.imageService.getAllData()
 
-        const updatedImages = allImages.filter((image) => image.fullPath !== `${galleryName}/${imageName}`)
-        this.galleryService.updateAllWhereKey('path', galleryName, 'images', updatedImages)
-        return response.status(200).send('Photo deleted!')
+        this.imageService.saveData(allImages.filter((image) => image.fullPath !== `${galleryName}/${imageName}`))
+        return response.status(200).json({ messages:'Photo deleted!' })
       }
       //delete gallery
       else if (galleryPath) {
         fs.rmSync(galleryPath, { recursive: true, force: true });
-        this.galleryService.deleteAllWhereKey('path', galleryName)
-        return response.status(200).send('Gallery deleted!')
+        this.imageService.deleteImagesByGalleryName(galleryName)
+        return response.status(200).json({ messages: 'Gallery deleted!' })
       }
     } catch (error) {
       console.error(error)
-      return response.status(500).send('Unknown error' )
+      return response.status(500).json({ error: 'Unknown error' } )
     }
 
 

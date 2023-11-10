@@ -1,22 +1,22 @@
-import FileService from "./FileService";
-import {Gallery} from "../Models/Gallery";
-import * as console from "console";
-
 //service for gallery metadata processing
-export class GalleryService extends FileService<Gallery> {
+import fsp from "fs/promises";
+import {PATHS} from "App/Helpers/Constants";
+import {ImageService} from "App/Services/ImageService";
 
-  constructor() {
-    super('gallery.json');
+export class GalleryService {
+
+
+  public static async listGalleries() {
+    const imageService = new ImageService()
+    const files = await fsp.readdir(PATHS.public.storage(''), { withFileTypes: true });
+
+    return files
+        .filter((file) => file.isDirectory())
+        .map((directory) => ({
+          path: encodeURIComponent(directory.name),
+          name: directory.name,
+          ...(imageService.findImagesByGalleryName(encodeURIComponent(directory.name))[0] ?
+            { image: imageService.findImagesByGalleryName(encodeURIComponent(directory.name))[0] } : {}),
+        }));
   }
-
-
-  //additional task search images with string
-  searchImageByName(searchValue: string) {
-    const allImages = this.getAllData().flatMap((gallery) => gallery.images)
-    console.log(allImages)
-    return allImages.filter((image) => image.name.includes(searchValue))
-  }
-
-
-
 }

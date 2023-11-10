@@ -1,6 +1,6 @@
 import * as fs from 'fs';
-import Application from "@ioc:Adonis/Core/Application";
 import * as console from "console";
+import {PATHS} from "App/Helpers/Constants";
 
 
 //generic class form all services such as GalleryService UserService
@@ -9,7 +9,7 @@ export default class FileService<T> {
 
   //prepare json file as storage
   constructor(private fileName: string) {
-    this.filePath = Application.publicPath('data/' +  this.fileName)
+    this.filePath = PATHS.public.data(this.fileName)
     if (!fs.existsSync(this.filePath)) {
         fs.writeFileSync(this.filePath, '[]')
     }

@@ -1,38 +1,36 @@
-
 import {HttpContextContract} from "@ioc:Adonis/Core/HttpContext";
-import Application from "@ioc:Adonis/Core/Application";
 import * as fs from "fs";
 import * as console from "console";
-import {Gallery} from "../../Models/Gallery";
-import {GalleryService} from "../../Services/GalleryService";
-import {Image} from "../../Models/Image";
+import {ImageService} from "App/Services/ImageService";
+import {GalleryService} from "App/Services/GalleryService";
+import {createGallerySchema, searchImageByValueSchema} from "App/Helpers/Validators";
+import {PATHS} from "App/Helpers/Constants";
 
 
 export default class GalleriesController {
 
-  private readonly galleryService: GalleryService
+  private readonly imageService: ImageService
 
   constructor() {
-    this.galleryService = new GalleryService()
+    this.imageService = new ImageService()
   }
   public async createGallery({ request, response }: HttpContextContract){
+
+    try {
+      await request.validate({schema: createGallerySchema})
+    } catch (validationErr){
+      return response.status(400).json(validationErr.messages)
+    }
+
     //get gallery name from POST body
     const inputName = request.input('name')
 
-    //validate POST body
-    if (!inputName) {
-      return response.status(400).json( {
-        name: "INVALID_SCHEMA",
-        description: "Bad JSON object: u \' name \' is required property"
-      } )
-    }
-
     //generate path
-    const path = Application.publicPath(`storage/${inputName}`)
+    const path = PATHS.public.storage(inputName)
 
     //check existence
     if (fs.existsSync(path)) {
-      return response.status(409).send('Gallery with this name already exists')
+      return response.status(409).json({ error: 'Gallery with this name already exists' })
     }
 
     //create new directory for new gallery
@@ -40,36 +38,24 @@ export default class GalleriesController {
       fs.mkdirSync(path)
     }catch (error) {
       console.error(error)
-      return  response.status(500).send('Unknown error')
+      return  response.status(500).json( { error: 'Unknown error' })
     }
-
-    const gallery: Gallery = {
-      name: inputName,
-      path: encodeURIComponent(inputName),
-      images: []
-    }
-
-    //save gallery metadata to local json file
-    this.galleryService.appendItems([gallery])
 
     response.status(201).json( {
-      name: gallery.name,
-      path: gallery.path
+      name: inputName,
+      path: encodeURIComponent(inputName)
     })
   }
 
   public async listGalleries({ response }: HttpContextContract) {
-    const allGalleries = this.galleryService.getAllData()
 
-    //list metadata from json file provide by gallery service
-    const responsePayload = allGalleries.map((gallery) => {
-      return {
-        path: gallery.path,
-        name: gallery.name
-      }
-    })
+    try {
+      const galleries = await GalleryService.listGalleries()
+      return response.status(200).json({ galleries });
+    } catch (error) {
+      return response.status(500).json({ error: 'Unknown error' });
+    }
 
-    return response.status(200).json({ galleries: responsePayload })
   }
 
   public async listGalleryImages({ response, params }: HttpContextContract) {
@@ -77,43 +63,43 @@ export default class GalleriesController {
     const { path } = params
 
     //generate path on the disk
-    const storagePath = Application.publicPath(`storage/${decodeURIComponent(path)}`)
+    const storagePath =  PATHS.public.storage(decodeURIComponent(path))
 
     //check if exists
     if (!fs.existsSync(storagePath)) {
-      return response.status(404).send( 'Gallery does not exists')
+      return response.status(404).json( { error: 'Gallery does not exists' })
     }
 
-    //load gallery images
-    const gallery: Gallery = this.galleryService.getByKey("path", path)[0]
-    const images: Image[] = gallery.images
+    // //load gallery images
+    const galleryImages = this.imageService.findImagesByGalleryName(path)
+    const titleImage = galleryImages[0]
 
-    //fill response body
-    const responsePayload = {
+    const responseBody = {
       gallery: {
-        path: gallery.path,
-        name: gallery.name
-      },
-      images: [
-        ...images
-      ]
+        path: path,
+        name: decodeURIComponent(path),
+        ...(titleImage ? { image: titleImage } : {}),
+        images: [
+          ...galleryImages
+        ]
+      }
     }
 
-    return response.status(200).json(responsePayload)
+    return response.status(200).json(responseBody)
 
   }
 
   public async searchGalleryImages({ request, response }: HttpContextContract) {
-    const { searchValue } = request.qs()
 
-    if (!searchValue) {
-      return response.status(400).json( {
-        name: "INVALID_SCHEMA",
-        description: "Bad URL parameter:  \' searchValue \' is required property"
-      } )
+    try {
+      await request.validate({schema: searchImageByValueSchema})
+    } catch (validationErr){
+      return response.status(400).json(validationErr.messages)
     }
 
-    const images = this.galleryService.searchImageByName(searchValue)
+    const { searchValue } = request.qs()
+
+    const images = this.imageService.searchImageByName(searchValue)
 
     return response.status(200).json({ images: images })
   }

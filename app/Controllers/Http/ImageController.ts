@@ -1,8 +1,8 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import Application from "@ioc:Adonis/Core/Application";
 import * as fs from "fs";
 import sharp from "sharp";
 import * as console from "console";
+import {PATHS} from "App/Helpers/Constants";
 
 export default class PostsController {
   public async show({response, params}: HttpContextContract) {
@@ -12,12 +12,11 @@ export default class PostsController {
     const decodedGalleryName = decodeURIComponent(galleryName)
     const decodedImageName = decodeURIComponent(imageName)
     //prepare file paths
-    const rawPath = `storage/${decodedGalleryName}/${decodedImageName}`
-    const filePath = Application.publicPath(rawPath)
+    const filePath = PATHS.public.storage(`${decodedGalleryName}/${decodedImageName}`)
     const exist = fs.existsSync(filePath)
 
     if (!exist) {
-      return response.status(404).send('Photo not found')
+      return response.status(404).json({ error: 'Photo not found' })
     }
 
     //extract sizes from URL string parameter
@@ -26,8 +25,8 @@ export default class PostsController {
 
     try {
       //check if temp folder for data is existst
-      if (!fs.existsSync(Application.tmpPath(`storage/${decodedGalleryName}`))) {
-        fs.mkdirSync(Application.tmpPath(`storage/${decodedGalleryName}`))
+      if (!fs.existsSync(PATHS.tmp.storage(decodedGalleryName))) {
+        fs.mkdirSync(PATHS.tmp.storage(decodedGalleryName))
       }
 
       //using sharp package resize image. If one
@@ -35,13 +34,12 @@ export default class PostsController {
       await sharp(filePath).resize({
         width: +width !== 0 ? +width : undefined,
         height: +height !== 0 ? +height : undefined
-      }).toFile(Application.tmpPath(rawPath)) //save resized image to temp file
-
+      }).toFile(PATHS.tmp.storage(`${decodedGalleryName}/${decodedImageName}`)) //save resized image to temp file
       //return image URL
-      return response.status(200).download(Application.tmpPath(rawPath))
+      return response.status(200).download(PATHS.tmp.storage(`${decodedGalleryName}/${decodedImageName}`))
     } catch (e) {
       console.error(e)
-      return response.status(500).send('The photo preview can\'t be generated.')
+      return response.status(500).json({ error: 'The photo preview can\'t be generated.'})
     }
 
   }
