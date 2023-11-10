@@ -1,20 +1,20 @@
-##Návod na spustenie
+## Návod na spustenie
 
-###1. Prostredie
+### 1. Prostredie
 - Vo svojom počítači potrebuješ mať nainštalované prostredie **Node.js**
 - Verzia Node.js musí byť aspoň **v14**. Zistíš ju príkazom ```node -v ```
   
 
-###2. Inštalácia
+### 2. Inštalácia
 - Otvor si terminál a choď do root priečinka **gallery-api** ```cd gallery-api```
 - Nainštaluj si potrebné **node_modules** spustením príkazu ```npm install```
   
 
-###3. Spustenie
+### 3. Spustenie
 - Projekt spustíš príkazom ```npm run dev``` a počkáš nabehne. Ak v terminály uvidíš hlášku ```started server on 0.0.0.0:3333```, tak to znamená, že projekt je spustený a funguje
 
 
-##Popis riešenia
+## Popis riešenia
 Potrebné API endopointy by mali fungovať podľa priloženej dokumentácie v zadaní. Ja som to testoval cez appku [Postman](https://www.postman.com/) ale aj cez browser. 
 
 **.env** súbor by sa na GitHub nemal dávať už vôbec nie na public projekt, ale schválne som tam neuložil žiadne citlivé informácie. Discord client je len testovací. 
@@ -57,21 +57,21 @@ Príklad použitia:
 Bonusovú úlohu sa mi nepodarilo spraviť. Skončil som hneď na pri pokuse si opýtať URL, odmietlo mi to s tým, že appka je už neplátaná. Čiže niečo s client_id v administrácii.
 ##Návod na spustenie
 
-###1. Prostredie
+### 1. Prostredie
 - Vo svojom počítači potrebuješ mať nainštalované prostredie **Node.js**
 - Verzia Node.js musí byť aspoň **v14**. Zistíš ju príkazom ```node -v ```
   
 
-###2. Inštalácia
+### 2. Inštalácia
 - Otvor si terminál a choď do root priečinka **gallery-api** ```cd gallery-api```
 - Nainštaluj si potrebné **node_modules** spustením príkazu ```npm install```
   
 
-###3. Spustenie
+### 3. Spustenie
 - Projekt spustíš príkazom ```npm run dev``` a počkáš nabehne. Ak v terminály uvidíš hlášku ```started server on 0.0.0.0:3333```, tak to znamená, že projekt je spustený a funguje
 
 
-##Popis riešenia
+## Popis riešenia
 Potrebné API endopointy by mali fungovať podľa priloženej dokumentácie v zadaní. Ja som to testoval cez appku [Postman](https://www.postman.com/) ale aj cez browser. 
 
 **.env** súbor by sa na GitHub nemal dávať už vôbec nie na public projekt, ale schválne som tam neuložil žiadne citlivé informácie. Discord client je len testovací. 
